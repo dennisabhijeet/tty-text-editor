@@ -1,0 +1,13 @@
+#include<iostream.h> 
+ 
+main(){ 
+ int a;
+ 
+ 
+} 
+ 
+ 
+ 
+ 
+ 
+ 
