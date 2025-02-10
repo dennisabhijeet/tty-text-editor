@@ -1,0 +1,58 @@
+name: Move Trello Card on PR Merge
+
+on:
+  pull_request:
+    types:
+      - closed  # Triggers when PR is merged or closed
+
+jobs:
+  move_trello_card:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract Trello Card ID from PR Title
+        id: extract_card_id
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          CARD_ID=$(echo "$PR_TITLE" | grep -o '#[A-Za-z0-9]*' | tr -d '#')
+
+          if [[ -z "$CARD_ID" ]]; then
+            echo "⚠️ No Trello Card ID found in PR title. Skipping move."
+            echo "CARD_ID=" >> $GITHUB_ENV
+            exit 0  # Exit successfully without failing the job
+          fi
+
+          echo "Extracted Card ID: $CARD_ID"
+          echo "CARD_ID=$CARD_ID" >> $GITHUB_ENV
+
+      - name: Get Current List of Trello Card
+        if: env.CARD_ID != ''
+        id: get_card_list
+        run: |
+          RESPONSE=$(curl -s "https://api.trello.com/1/cards/${{ env.CARD_ID }}?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}")
+          CURRENT_LIST_ID=$(echo "$RESPONSE" | jq -r '.idList')
+
+          if [[ -z "$CURRENT_LIST_ID" || "$CURRENT_LIST_ID" == "null" ]]; then
+            echo "⚠️ Could not fetch Trello card's current list ID. Skipping move."
+            exit 0  # Exit successfully without failing the job
+          fi
+
+          echo "Current List ID: $CURRENT_LIST_ID"
+          echo "CURRENT_LIST_ID=$CURRENT_LIST_ID" >> $GITHUB_ENV
+
+      - name: Move Trello Card (Only if in 'In Progress' list)
+        if: env.CURRENT_LIST_ID == secrets.TRELLO_IN_PROGRESS_LIST_ID
+        run: |
+          echo "✅ Card is in 'In Progress' list, moving to 'Completed'."
+          curl -X PUT "https://api.trello.com/1/cards/${{ env.CARD_ID }}" \
+          -H "Content-Type: application/json" \
+          --data-urlencode "idList=${{ secrets.TRELLO_COMPLETED_LIST_ID }}" \
+          --data-urlencode "key=${{ secrets.TRELLO_API_KEY }}" \
+          --data-urlencode "token=${{ secrets.TRELLO_TOKEN }}"
+
+      - name: Skip Move (Card is not in 'In Progress' list)
+        if: env.CURRENT_LIST_ID != secrets.TRELLO_IN_PROGRESS_LIST_ID
+        run: |
+          echo "⚠️ Card is not in 'In Progress' list. Skipping move."
+          exit 0  # Exit successfully without failing the job
