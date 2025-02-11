@@ -1,9 +1,12 @@
 name: Move Trello In Progress Card To Completed List on PR Merge
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     types:
-      - closed  # Triggers when PR is merged or closed
+      - closed
 
 jobs:
   move_trello_card:
