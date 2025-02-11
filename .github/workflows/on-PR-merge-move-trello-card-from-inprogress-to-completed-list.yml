@@ -1,4 +1,4 @@
-name: Move Trello Card on PR Merge
+name: Move Trello In Progress Card To Completed List on PR Merge
 
 on:
   pull_request:
@@ -7,10 +7,17 @@ on:
 
 jobs:
   move_trello_card:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true  # Only run if PR is merged
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug Secrets
+        run: |
+          echo "TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY != '' && '***' || 'NOT SET' }}"
+          echo "TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN != '' && '***' || 'NOT SET' }}"
+          echo "TRELLO_IN_PROGRESS_LIST_ID: ${{ secrets.TRELLO_IN_PROGRESS_LIST_ID != '' && '***' || 'NOT SET' }}"
+          echo "TRELLO_COMPLETED_LIST_ID: ${{ secrets.TRELLO_COMPLETED_LIST_ID != '' && '***' || 'NOT SET' }}"
+
       - name: Extract Trello Card ID from PR Title
         id: extract_card_id
         run: |
@@ -26,16 +33,18 @@ jobs:
           echo "Extracted Card ID: $CARD_ID"
           echo "CARD_ID=$CARD_ID" >> $GITHUB_ENV
 
-      - name: Set Environment Variables for Trello Lists
+      - name: Set Environment Variables for Trello Secrets
         run: |
           echo "TRELLO_IN_PROGRESS_LIST_ID=${{ secrets.TRELLO_IN_PROGRESS_LIST_ID }}" >> $GITHUB_ENV
           echo "TRELLO_COMPLETED_LIST_ID=${{ secrets.TRELLO_COMPLETED_LIST_ID }}" >> $GITHUB_ENV
+          echo "TRELLO_API_KEY=${{ secrets.TRELLO_API_KEY }}" >> $GITHUB_ENV
+          echo "TRELLO_TOKEN=${{ secrets.TRELLO_TOKEN }}" >> $GITHUB_ENV
 
       - name: Get Current List of Trello Card
-        if: env.CARD_ID != ''
+        if: env.CARD_ID != ''  # Only run if CARD_ID is set
         id: get_card_list
         run: |
-          RESPONSE=$(curl -s "https://api.trello.com/1/cards/${{ env.CARD_ID }}?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}")
+          RESPONSE=$(curl -s "https://api.trello.com/1/cards/${{ env.CARD_ID }}?key=${{ env.TRELLO_API_KEY }}&token=${{ env.TRELLO_TOKEN }}")
           CURRENT_LIST_ID=$(echo "$RESPONSE" | jq -r '.idList')
 
           if [[ -z "$CURRENT_LIST_ID" || "$CURRENT_LIST_ID" == "null" ]]; then
@@ -47,15 +56,12 @@ jobs:
           echo "CURRENT_LIST_ID=$CURRENT_LIST_ID" >> $GITHUB_ENV
 
       - name: Move Trello Card (Only if in 'In Progress' list)
+        if: env.CARD_ID != '' && env.CURRENT_LIST_ID == env.TRELLO_IN_PROGRESS_LIST_ID
         run: |
-          if [[ "$CURRENT_LIST_ID" == "$TRELLO_IN_PROGRESS_LIST_ID" ]]; then
-            echo "✅ Card is in 'In Progress' list, moving to 'Completed'."
-            curl -X PUT "https://api.trello.com/1/cards/${{ env.CARD_ID }}" \
-              -H "Content-Type: application/json" \
-              --data-urlencode "idList=${{ env.TRELLO_COMPLETED_LIST_ID }}" \
-              --data-urlencode "key=${{ secrets.TRELLO_API_KEY }}" \
-              --data-urlencode "token=${{ secrets.TRELLO_TOKEN }}"
-          else
-            echo "⚠️ Card is not in 'In Progress' list. Skipping move."
-            exit 0  # Exit successfully without failing the job
-          fi
+          echo "✅ Card is in 'In Progress' list, moving to 'Completed'."
+          curl -X PUT "https://api.trello.com/1/cards/${{ env.CARD_ID }}?key=${{ env.TRELLO_API_KEY }}&token=${{ env.TRELLO_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data '{
+              "idList": "${{ env.TRELLO_COMPLETED_LIST_ID }}"
+            }'
+
