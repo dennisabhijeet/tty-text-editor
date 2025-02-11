@@ -1,6 +1,13 @@
 export enum KeyBoardKey {
-  ARROW_UP = "\x1b[A",
-  ARROW_DOWN = "\x1b[B",
-  ARROW_RIGHT = "\x1b[C",  
-  ARROW_LEFT = "\x1b[D",
+  ARROW_UP = "up",
+  ARROW_DOWN = "down",
+  ARROW_RIGHT = "right",
+  ARROW_LEFT = "left",
 }
+
+export const NavigationKeys : string[]= [
+  KeyBoardKey.ARROW_DOWN,
+  KeyBoardKey.ARROW_LEFT,
+  KeyBoardKey.ARROW_RIGHT,
+  KeyBoardKey.ARROW_UP,
+];
