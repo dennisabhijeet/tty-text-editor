@@ -45,7 +45,7 @@ jobs:
         if: env.CARD_ID != ''  # Only run if CARD_ID is set
         id: get_card_list
         run: |
-          RESPONSE=$(curl -s "https://api.trello.com/1/cards/${{ env.CARD_ID }}?key=${{ env.TRELLO_API_KEY }}&token=${{ env.TRELLO_TOKEN }}")
+          RESPONSE=$(curl -s "https://api.trello.com/1/cards/$CARD_ID?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN")
           CURRENT_LIST_ID=$(echo "$RESPONSE" | jq -r '.idList')
 
           if [[ -z "$CURRENT_LIST_ID" || "$CURRENT_LIST_ID" == "null" ]]; then
@@ -60,11 +60,11 @@ jobs:
         if: env.CARD_ID != '' && env.CURRENT_LIST_ID == env.TRELLO_IN_PROGRESS_LIST_ID
         run: |
           echo "✅ Card is in 'In Progress' list, moving to 'Completed'."
-          curl -X PUT "https://api.trello.com/1/cards/${{ env.CARD_ID }}" \
+          curl -X PUT "https://api.trello.com/1/cards/$CARD_ID" \
             -H "Content-Type: application/json" \
-            --data-urlencode "idList=${{ env.TRELLO_COMPLETED_LIST_ID }}" \
-            --data-urlencode "key=${{ env.TRELLO_API_KEY }}" \
-            --data-urlencode "token=${{ env.TRELLO_TOKEN }}"
+            --data-urlencode "idList=$TRELLO_COMPLETED_LIST_ID" \
+            --data-urlencode "key=$TRELLO_API_KEY" \
+            --data-urlencode "token=$TRELLO_TOKEN"
 
 
 # name: Move Trello Card on PR Merge
