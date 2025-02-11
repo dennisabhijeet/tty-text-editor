@@ -1,13 +1,16 @@
 name: Move Trello In Progress Card To Completed List on PR Merge
 
+# on:
+#   pull_request:
+#     types:
+#       - closed # Runs only when a PR is merged or closed
+
 on:
   pull_request:
     types:
-      - closed # Runs only when a PR is merged or closed
-
-permissions:
-  contents: read
-  statuses: write # ✅ Required for commit status updates
+      - closed  # Triggers when PR is merged or closed
+    branches:
+      - '**'
 
 jobs:
   move_trello_card:
@@ -71,18 +74,3 @@ jobs:
             --data '{
               "idList": "${{ env.TRELLO_COMPLETED_LIST_ID }}"
             }'
-
-      - name: Set Commit Status to Success (Green Check Mark On Job Completion)
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.payload.pull_request.head.sha,
-              state: 'success',
-              context: 'GitHub Actions',
-              description: 'Workflow completed successfully!',
-              target_url: '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-            });
