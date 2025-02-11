@@ -8,9 +8,13 @@ name: Move Trello In Progress Card To Completed List on PR Merge
 on:
   pull_request:
     types:
-      - closed  # Triggers when PR is merged or closed
+      - closed # Triggers when PR is merged or closed
     branches:
-      - '**'
+      - "**"
+
+permissions:
+  contents: read
+  statuses: write # ✅ Allows setting commit status
 
 jobs:
   move_trello_card:
@@ -74,3 +78,18 @@ jobs:
             --data '{
               "idList": "${{ env.TRELLO_COMPLETED_LIST_ID }}"
             }'
+
+      - name: Set Commit Status to Success
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+              github.rest.repos.createCommitStatus({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  sha: "${{ github.event.pull_request.head.sha }}",
+                  state: "success",
+                  context: "GitHub Actions",
+                  description: "Workflow completed successfully!",
+                  target_url: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              });
