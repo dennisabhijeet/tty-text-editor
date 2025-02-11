@@ -3,7 +3,7 @@ name: Move Trello In Progress Card To Completed List on PR Merge
 on:
   push:
     branches:
-      - main
+      - '**'  # Runs on push to any branch
   pull_request:
     types:
       - closed
