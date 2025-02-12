@@ -42,6 +42,22 @@ export class Editor {
       process.exit(0);
     }
 
+    // Handle space key press
+    if (key.name === "space") {
+      const line = this.buffer[this.cursorPosition.row] ?? "";
+      const windowColumnSize = this.writeStream!.getWindowSize()[0];
+
+      if (line.length < windowColumnSize) {
+        this.buffer[this.cursorPosition.row] =
+          line.slice(0, this.cursorPosition.column) +
+          " " +
+          line.slice(this.cursorPosition.column);
+
+        this.cursorPosition.column += 1;
+        this.refreshScreen();
+      }
+    }
+
     // handle cursor position handling
     if (!!key?.name && NavigationKeys.includes(key?.name)) {
       this.handleCursorNavigation(key?.name as KeyBoardKey);
@@ -200,5 +216,14 @@ export class Editor {
       writeStream.cursorTo(cursorPosition.column, cursorPosition.row);
       writeStream.clearScreenDown();
     }
+  }
+
+  public refreshScreen() {
+    this.clearScreen(this.writeStream);
+    this.display();
+    this.writeStream?.cursorTo(
+      this.cursorPosition.column,
+      this.cursorPosition.row,
+    );
   }
 }
