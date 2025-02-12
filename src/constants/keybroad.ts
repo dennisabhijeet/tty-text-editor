@@ -1,11 +1,11 @@
 export enum KeyBoardKey {
-  ARROW_UP = "up",
-  ARROW_DOWN = "down",
-  ARROW_RIGHT = "right",
-  ARROW_LEFT = "left",
+  ARROW_UP = 'up',
+  ARROW_DOWN = 'down',
+  ARROW_RIGHT = 'right',
+  ARROW_LEFT = 'left',
 }
 
-export const NavigationKeys : string[]= [
+export const NavigationKeys: string[] = [
   KeyBoardKey.ARROW_DOWN,
   KeyBoardKey.ARROW_LEFT,
   KeyBoardKey.ARROW_RIGHT,

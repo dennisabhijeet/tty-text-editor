@@ -1,0 +1,31 @@
+name: ci/cd checking lint
+
+on:
+    push:
+      branches:
+        - main
+        - dev
+        - devtest
+        - ci/cd-implementation
+    pull_request:
+      branches:
+        - '*'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Linting
+        run: npm run lint
