@@ -1,0 +1,59 @@
+name: Check Lint 
+
+on:
+    push:
+      branches:
+        - main
+        - dev
+    pull_request:
+      branches:
+        - '*'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Linting
+        run: npm run lint
+
+  slack_notification:
+    runs-on: ubuntu-latest
+    needs: lint  # This job runs AFTER the lint job
+    if: failure()
+    steps:
+      - name: Post To a Slack Channel On Job Failure
+        id: slack
+        uses: slackapi/slack-github-action@v1.26.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        with:
+          channel-id: 'C08DL8PLGL8'
+          payload: |
+              {
+                "text": "🚨 *Job Failed!* 🚨",
+                "attachments": [
+                  {
+                    "color": "#FF0000",
+                    "fields": [
+                      { "title": "Repository", "value": "${{ github.repository }}", "short": true },
+                      { "title": "Branch", "value": "${{ github.ref }}", "short": true },
+                      { "title": "Commit", "value": "${{ github.sha }}", "short": true },
+                      { "title": "Workflow", "value": "${{ github.workflow }}", "short": true },
+                      { "title": "Job", "value": "${{ github.job }}", "short": true },
+                      { "title": "Pull Request", "value": "<${{ github.event.pull_request.html_url }}|View PR>", "short": false }
+                    ]
+                  }
+                ]
+              }
