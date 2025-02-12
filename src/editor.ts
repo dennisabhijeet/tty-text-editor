@@ -85,6 +85,11 @@ export class Editor {
       }
     }
 
+    // Handle backspace
+    if (key?.name === "backspace") {
+      this.handleBackspace();
+    }
+
     printOnFile(`${JSON.stringify(this.cursorPosition)}`);
   }
 
@@ -209,7 +214,7 @@ export class Editor {
 
     return new Promise((res, rej) => {
       readLine.on("line", (data) => {
-        buffer.push(data);
+        buffer.push(data + " ");
       });
 
       readLine.on("close", () => {
@@ -262,6 +267,48 @@ export class Editor {
       writeStream.cursorTo(cursorPosition.column, cursorPosition.row);
       writeStream.clearScreenDown();
     }
+  }
+
+  public handleBackspace() {
+    if (this.cursorPosition.row === 0 && this.cursorPosition.column === 0) {
+      return;
+    }
+
+    const currentLine = this.buffer[this.cursorPosition.row];
+
+    if (this.cursorPosition.column > 0) {
+      // Remove the character before the cursor
+      const newLine =
+        currentLine.slice(0, this.cursorPosition.column - 1) +
+        currentLine.slice(this.cursorPosition.column);
+      this.buffer[this.cursorPosition.row] = newLine;
+
+      // Move cursor back
+      this.cursorPosition.column--;
+    } else if (this.cursorPosition.row > 0) {
+      const previousLine = this.buffer[this.cursorPosition.row - 1];
+      const currentLine = this.buffer[this.cursorPosition.row];
+
+      // Merge with previous line
+      this.buffer[this.cursorPosition.row - 1] = previousLine + currentLine;
+
+      // Remove current line
+      this.buffer.splice(this.cursorPosition.row, 1);
+
+      // Move cursor to end of previous line
+      this.cursorPosition.row--;
+      this.cursorPosition.column = previousLine.length;
+    }
+
+    // Clear screen and redisplay
+    this.clearScreen(this.writeStream);
+    this.display();
+
+    // Move cursor to new position
+    this.writeStream?.cursorTo(
+      this.cursorPosition.column,
+      this.cursorPosition.row,
+    );
   }
 
   public refreshScreen() {
