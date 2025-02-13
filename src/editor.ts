@@ -25,7 +25,7 @@ export class Editor {
     this.display();
 
     this.readStream.on("keypress", (str, key) =>
-      this.handleKeyEvents(str, key)
+      this.handleKeyEvents(str, key),
     );
   }
 
@@ -58,7 +58,7 @@ export class Editor {
             this.cursorPosition.row -= 1;
             this.writeStream?.cursorTo(
               this.cursorPosition.column,
-              this.cursorPosition.row
+              this.cursorPosition.row,
             );
           } else {
             this.cursorPosition.row -= 1;
@@ -66,7 +66,7 @@ export class Editor {
               this.buffer[this.cursorPosition.row].length - 1;
             this.writeStream?.cursorTo(
               this.cursorPosition.column,
-              this.cursorPosition.row
+              this.cursorPosition.row,
             );
           }
         }
@@ -81,7 +81,7 @@ export class Editor {
             this.cursorPosition.row += 1;
             this.writeStream?.cursorTo(
               this.cursorPosition.column,
-              this.cursorPosition.row
+              this.cursorPosition.row,
             );
           } else {
             this.cursorPosition.row += 1;
@@ -89,7 +89,7 @@ export class Editor {
               this.buffer[this.cursorPosition.row].length - 1;
             this.writeStream?.cursorTo(
               this.cursorPosition.column,
-              this.cursorPosition.row
+              this.cursorPosition.row,
             );
           }
         }
@@ -105,7 +105,7 @@ export class Editor {
           this.cursorPosition.column -= 1;
           this.writeStream?.cursorTo(
             this.cursorPosition.column,
-            this.cursorPosition.row
+            this.cursorPosition.row,
           );
         }
         break;
@@ -119,7 +119,7 @@ export class Editor {
           this.cursorPosition.column += 1;
           this.writeStream?.cursorTo(
             this.cursorPosition.column,
-            this.cursorPosition.row
+            this.cursorPosition.row,
           );
         }
         break;
@@ -162,7 +162,7 @@ export class Editor {
           fd: 1;
         })
       | null,
-    cursorPosition = { row: 0, column: 0 }
+    cursorPosition = { row: 0, column: 0 },
   ) {
     if (!!writeStream) {
       writeStream.cursorTo(cursorPosition.column, cursorPosition.row);

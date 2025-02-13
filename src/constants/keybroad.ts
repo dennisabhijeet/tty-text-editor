@@ -5,7 +5,7 @@ export enum KeyBoardKey {
   ARROW_LEFT = "left",
 }
 
-export const NavigationKeys : string[]= [
+export const NavigationKeys: string[] = [
   KeyBoardKey.ARROW_DOWN,
   KeyBoardKey.ARROW_LEFT,
   KeyBoardKey.ARROW_RIGHT,
