@@ -1,4 +1,6 @@
 import { Editor } from "./editor";
 
-const ed = new Editor();
-ed.init("small.txt");
+// Code starts from here...
+const editor = new Editor();
+// Invoke the editor instance
+editor.init("small.txt");

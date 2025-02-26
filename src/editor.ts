@@ -13,7 +13,11 @@ export class Editor {
   windowSize: number[] = [];
   eventRegistry = EventRegistry.getInstance();
 
-  async init(filePath: string) {
+  /**
+   * Function to invoke the editor instance
+   * @param filePath
+   */
+  public async init(filePath: string) {
     this.readStream = process.stdin;
     this.writeStream = process.stdout;
     this.readStream.setEncoding("utf-8");
@@ -21,6 +25,7 @@ export class Editor {
     this.readStream.setRawMode(true);
     this.windowSize = this.writeStream.getWindowSize();
 
+    // Added file content to buffer
     this.buffer = await this.handleFileInput(filePath);
     this.clearScreen(this.writeStream);
 
@@ -33,13 +38,18 @@ export class Editor {
     );
   }
 
-  display(row: number = 0, column: number = 0) {
+  /**
+   * Function to display the file content
+   * @param row
+   * @param column
+   */
+  public display(row: number = 0, column: number = 0) {
     this.writeStream?.write(this.buffer.join("\n"));
     this.writeStream?.cursorTo(column, row);
   }
 
   /**
-   * read given file add file content in the buffer
+   * Function to Read the given file content add the file content in the buffer
    * @param filePath
    */
   async handleFileInput(filePath: string): Promise<string[]> {
@@ -57,7 +67,7 @@ export class Editor {
 
     return new Promise((res, rej) => {
       readLine.on("line", (data) => {
-        buffer.push(data + " ");
+        buffer.push(data + "");
       });
 
       readLine.on("close", () => {
@@ -71,9 +81,11 @@ export class Editor {
   }
 
   /**
-   * clear terminal screen
+   * Function to Clear terminal screen
+   * @param writeStream
+   * @param cursorPosition
    */
-  clearScreen(
+  public clearScreen(
     writeStream:
       | (WriteStream & {
           fd: 1;
@@ -87,6 +99,9 @@ export class Editor {
     }
   }
 
+  /**
+   * Function to refresh the screen (clear & display)
+   */
   public refreshScreen() {
     this.clearScreen(this.writeStream);
     this.display();

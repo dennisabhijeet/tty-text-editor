@@ -4,9 +4,9 @@ export enum KeyBoardKey {
   ARROW_RIGHT = "right",
   ARROW_LEFT = "left",
   TAB = "tab",
-  RETURN = "return",
   SPACE = "space",
   BACKSPACE = "backspace",
+  ENTER = "return",
 }
 
 export const NavigationKeys: string[] = [
