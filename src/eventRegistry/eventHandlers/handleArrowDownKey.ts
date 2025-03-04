@@ -4,26 +4,32 @@ import { EventRegistryInterface } from "../eventRegistryInterface";
 
 export class HandleArrowDownKey implements EventRegistryInterface {
   handleEvent(key: Key, thisArg: Editor): boolean {
-    if (thisArg.buffer?.[thisArg.cursorPosition.row + 1]) {
-      if (
-        thisArg.buffer?.[thisArg.cursorPosition.row + 1].length >=
-        thisArg.cursorPosition.column
-      ) {
-        thisArg.cursorPosition.row += 1;
-        thisArg.writeStream?.cursorTo(
-          thisArg.cursorPosition.column,
-          thisArg.cursorPosition.row,
-        );
-      } else {
-        thisArg.cursorPosition.row += 1;
-        thisArg.cursorPosition.column =
-          thisArg.buffer[thisArg.cursorPosition.row].length - 1;
-        thisArg.writeStream?.cursorTo(
-          thisArg.cursorPosition.column,
-          thisArg.cursorPosition.row,
-        );
-      }
+    // Get Buffer
+    const buffer = thisArg.buffer;
+    if (!buffer || thisArg.cursorPosition.row === buffer.length - 1) {
+      return true;
     }
+
+    const currentLine = buffer[thisArg.cursorPosition.row];
+    const downLine = buffer[thisArg.cursorPosition.row + 1];
+
+    let newCusrorColumnPostion = 0;
+    if (downLine.length < currentLine.length) {
+      newCusrorColumnPostion = downLine.length;
+    }
+
+    thisArg.cursorPosition.row += 1;
+    thisArg.cursorPosition.column =
+      thisArg.cursorPosition.column <= downLine.length
+        ? thisArg.cursorPosition.column
+        : newCusrorColumnPostion;
+
+    // move cursor position to down
+    thisArg.moveCursorTo(
+      thisArg.cursorPosition.column,
+      thisArg.cursorPosition.row,
+    );
+
     return true;
   }
 }

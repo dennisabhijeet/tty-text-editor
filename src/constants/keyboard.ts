@@ -9,7 +9,7 @@ export enum KeyBoardKey {
   ENTER = "return",
 }
 
-export const NavigationKeys: string[] = [
+export const NavigationKeys: KeyBoardKey[] = [
   KeyBoardKey.ARROW_DOWN,
   KeyBoardKey.ARROW_LEFT,
   KeyBoardKey.ARROW_RIGHT,

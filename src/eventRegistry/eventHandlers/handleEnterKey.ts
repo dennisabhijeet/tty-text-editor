@@ -8,21 +8,25 @@ export class HandleEnterKey implements EventRegistryInterface {
     thisArg: Editor,
     callbackFunction: (...args: any) => void,
   ): boolean {
-    // current row of cursor
-    const currentLine = thisArg.buffer[thisArg.cursorPosition.row];
+    //  Get Buffer
+    const buffer = thisArg.buffer;
+    if (!buffer) {
+      return true;
+    }
 
-    const splitedParts = currentLine.split("");
-    splitedParts.splice(thisArg.cursorPosition.column, 0, "\\n");
-    const joinedSplitedParts = splitedParts.join("");
-    const updatedRow = joinedSplitedParts.split("\\n");
+    const currentLine = buffer[thisArg.cursorPosition.row];
 
-    thisArg.buffer.splice(thisArg.cursorPosition.row, 1, ...updatedRow);
+    const firstPart = currentLine.slice(0, thisArg.cursorPosition.column);
+    const secondPart = currentLine.slice(thisArg.cursorPosition.column);
+
+    buffer.splice(thisArg.cursorPosition.row, 1, firstPart, secondPart);
 
     // Moved cursor position
     thisArg.cursorPosition.column = 0;
     thisArg.cursorPosition.row += 1;
 
     callbackFunction();
+
     return true;
   }
 }
