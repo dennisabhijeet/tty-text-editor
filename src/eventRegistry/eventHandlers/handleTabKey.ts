@@ -8,24 +8,28 @@ export class HandleTabKey implements EventRegistryInterface {
     thisArg: Editor,
     callbackFunction: (...args: any) => void,
   ): boolean {
-    if (
-      thisArg.windowSize[0] >=
-      thisArg.buffer[thisArg.cursorPosition.row].length + 2
-    ) {
-      const tabSize = 2;
-      const currentLine = thisArg.buffer[thisArg.cursorPosition.row];
-
-      const newLine =
-        currentLine.slice(0, thisArg.cursorPosition.column) +
-        " ".repeat(tabSize) +
-        currentLine.slice(thisArg.cursorPosition.column);
-
-      // Update the buffer with the new line
-      thisArg.buffer[thisArg.cursorPosition.row] = newLine;
-      thisArg.cursorPosition.column += tabSize;
-
-      callbackFunction();
+    const tabSize = 2;
+    // Get Buffer
+    const buffer = thisArg.buffer;
+    if (!buffer) {
+      return true;
     }
+
+    const currentLine = buffer[thisArg.cursorPosition.row];
+    const currentWindowColumnSize = thisArg.windowSize[0];
+
+    if (currentLine.length + tabSize > currentWindowColumnSize) {
+      return true;
+    }
+
+    buffer[thisArg.cursorPosition.row] =
+      currentLine.slice(0, thisArg.cursorPosition.column) +
+      " ".repeat(tabSize) +
+      currentLine.slice(thisArg.cursorPosition.column);
+
+    // Moved cursor position
+    thisArg.cursorPosition.column += tabSize;
+    callbackFunction();
 
     return true;
   }

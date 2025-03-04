@@ -110,4 +110,13 @@ export class Editor {
       this.cursorPosition.row,
     );
   }
+
+  /**
+   * Function to move the cursor position
+   * @param column
+   * @param row
+   */
+  public moveCursorTo(column: number, row: number) {
+    return this.writeStream?.cursorTo(column, row);
+  }
 }
