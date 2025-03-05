@@ -13,17 +13,28 @@ export class HandleEnterKey implements EventRegistryInterface {
     if (!buffer) {
       return true;
     }
+    const currentLineIndex =
+      thisArg.cursorPosition.row + thisArg.currentScreenSize.startRow;
 
-    const currentLine = buffer[thisArg.cursorPosition.row];
+    const currentLine = buffer[currentLineIndex];
 
     const firstPart = currentLine.slice(0, thisArg.cursorPosition.column);
     const secondPart = currentLine.slice(thisArg.cursorPosition.column);
 
-    buffer.splice(thisArg.cursorPosition.row, 1, firstPart, secondPart);
+    buffer.splice(currentLineIndex, 1, firstPart, secondPart);
 
     // Moved cursor position
     thisArg.cursorPosition.column = 0;
-    thisArg.cursorPosition.row += 1;
+
+    if (
+      thisArg.cursorPosition.row <
+      thisArg.currentScreenSize.endRow - thisArg.currentScreenSize.startRow - 1
+    ) {
+      thisArg.cursorPosition.row += 1;
+    } else {
+      thisArg.currentScreenSize.startRow += 1;
+      thisArg.currentScreenSize.endRow += 1;
+    }
 
     callbackFunction();
 

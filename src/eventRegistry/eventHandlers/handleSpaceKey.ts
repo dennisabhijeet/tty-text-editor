@@ -15,14 +15,16 @@ export class HandleSpaceKey implements EventRegistryInterface {
       return true;
     }
 
-    const currentLine = buffer[thisArg.cursorPosition.row];
+    const currentLineIndex =
+      thisArg.cursorPosition.row + thisArg.currentScreenSize.startRow;
+    const currentLine = buffer[currentLineIndex];
     const currentWindowSize = thisArg.windowSize[0];
 
     if (currentLine.length >= currentWindowSize) {
       return true;
     }
 
-    buffer[thisArg.cursorPosition.row] =
+    buffer[currentLineIndex] =
       currentLine.slice(0, thisArg.cursorPosition.column) +
       " " +
       currentLine.slice(thisArg.cursorPosition.column);

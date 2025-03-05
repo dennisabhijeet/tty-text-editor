@@ -3,12 +3,14 @@ import path from "path";
 
 class Logger {
   #filePath: string | null = null;
+  #fileDescriptor: number | null = null;
   constructor(logFilePath: string) {
     // Ensure the logs directory exists
     if (!existsSync(path.dirname(logFilePath))) {
       mkdirSync(path.dirname(logFilePath), { recursive: true });
     }
     this.#filePath = logFilePath;
+    this.#fileDescriptor = openSync(this.#filePath, "a+");
   }
 
   /**
@@ -16,8 +18,10 @@ class Logger {
    * @param data
    */
   public print(data: string) {
-    const outputFilePath = openSync(String(this.#filePath), "a+");
-    writeFile(outputFilePath, data, () => {});
+    if (this.#fileDescriptor === null) {
+      return;
+    }
+    writeFile(this.#fileDescriptor, data, () => {});
   }
 }
 
