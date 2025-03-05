@@ -12,6 +12,7 @@ export class Editor {
   buffer: string[] = [];
   windowSize: number[] = [];
   eventRegistry = EventRegistry.getInstance();
+  currentScreenSize = { startRow: 0, endRow: 0 };
 
   /**
    * Function to invoke the editor instance
@@ -24,6 +25,7 @@ export class Editor {
     readLine.emitKeypressEvents(this.readStream);
     this.readStream.setRawMode(true);
     this.windowSize = this.writeStream.getWindowSize();
+    this.currentScreenSize.endRow = this.windowSize[1];
 
     // Added file content to buffer
     this.buffer = await this.handleFileInput(filePath);
@@ -44,7 +46,11 @@ export class Editor {
    * @param column
    */
   public display(row: number = 0, column: number = 0) {
-    this.writeStream?.write(this.buffer.join("\n"));
+    const bufferWindow = this.buffer.slice(
+      this.currentScreenSize.startRow,
+      this.currentScreenSize.endRow,
+    );
+    this.writeStream?.write(bufferWindow.join("\n"));
     this.writeStream?.cursorTo(column, row);
   }
 

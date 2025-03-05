@@ -3,26 +3,43 @@ import { Editor } from "../../editor";
 import { EventRegistryInterface } from "../eventRegistryInterface";
 
 export class HandleArrowDownKey implements EventRegistryInterface {
-  handleEvent(key: Key, thisArg: Editor): boolean {
+  handleEvent(
+    key: Key,
+    thisArg: Editor,
+    callbackFunction: (...args: any) => void,
+  ): boolean {
     // Get Buffer
+    let rerender = false;
+    const currentLineIndex =
+      thisArg.cursorPosition.row + thisArg.currentScreenSize.startRow;
     const buffer = thisArg.buffer;
-    if (!buffer || thisArg.cursorPosition.row === buffer.length - 1) {
+
+    if (!buffer || currentLineIndex === buffer.length - 1) {
       return true;
     }
 
-    const currentLine = buffer[thisArg.cursorPosition.row];
-    const downLine = buffer[thisArg.cursorPosition.row + 1];
+    const currentLine = buffer[currentLineIndex];
+    const downLine = buffer[currentLineIndex + 1];
 
-    let newCusrorColumnPostion = 0;
+    let newCursorColumnPosition = 0;
     if (downLine.length < currentLine.length) {
-      newCusrorColumnPostion = downLine.length;
+      newCursorColumnPosition = downLine.length;
     }
 
-    thisArg.cursorPosition.row += 1;
+    if (
+      thisArg.cursorPosition.row <
+      thisArg.currentScreenSize.endRow - thisArg.currentScreenSize.startRow - 1
+    ) {
+      thisArg.cursorPosition.row += 1;
+    } else {
+      thisArg.currentScreenSize.startRow += 1;
+      thisArg.currentScreenSize.endRow += 1;
+      rerender = true;
+    }
     thisArg.cursorPosition.column =
       thisArg.cursorPosition.column <= downLine.length
         ? thisArg.cursorPosition.column
-        : newCusrorColumnPostion;
+        : newCursorColumnPosition;
 
     // move cursor position to down
     thisArg.moveCursorTo(
@@ -30,6 +47,10 @@ export class HandleArrowDownKey implements EventRegistryInterface {
       thisArg.cursorPosition.row,
     );
 
+    // if screen size changed
+    if (rerender) {
+      callbackFunction();
+    }
     return true;
   }
 }

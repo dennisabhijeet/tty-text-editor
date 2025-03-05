@@ -15,14 +15,17 @@ export class HandleTabKey implements EventRegistryInterface {
       return true;
     }
 
-    const currentLine = buffer[thisArg.cursorPosition.row];
+    const currentLineIndex =
+      thisArg.cursorPosition.row + thisArg.currentScreenSize.startRow;
+
+    const currentLine = buffer[currentLineIndex];
     const currentWindowColumnSize = thisArg.windowSize[0];
 
     if (currentLine.length + tabSize > currentWindowColumnSize) {
       return true;
     }
 
-    buffer[thisArg.cursorPosition.row] =
+    buffer[currentLineIndex] =
       currentLine.slice(0, thisArg.cursorPosition.column) +
       " ".repeat(tabSize) +
       currentLine.slice(thisArg.cursorPosition.column);

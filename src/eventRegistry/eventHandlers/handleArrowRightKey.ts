@@ -9,7 +9,11 @@ export class HandleArrowRightKey implements EventRegistryInterface {
     if (!buffer) {
       return true;
     }
-    const currentLine = buffer[thisArg.cursorPosition.row];
+    const currentLineIndex =
+      thisArg.cursorPosition.row + thisArg.currentScreenSize.startRow;
+
+    const currentLine = buffer[currentLineIndex];
+
     if (thisArg.cursorPosition.column === currentLine.length) {
       return true;
     }
