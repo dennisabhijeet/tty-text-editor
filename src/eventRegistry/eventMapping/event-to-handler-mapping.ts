@@ -6,6 +6,7 @@ import { HandleBackSpaceKey } from "../eventHandlers/handleBackSpaceKey";
 import { HandleChar } from "../eventHandlers/handleChar";
 import { HandleEnterKey } from "../eventHandlers/handleEnterKey";
 import { HandleExit } from "../eventHandlers/handleExit";
+import { HandleSaveFile } from "../eventHandlers/handleSaveFile";
 import { HandleSpaceKey } from "../eventHandlers/handleSpaceKey";
 import { HandleTabKey } from "../eventHandlers/handleTabKey";
 import { EventRegistryInterface } from "../eventRegistryInterface";
@@ -23,6 +24,7 @@ export enum EventNames {
   CtrlPlusQ = "ctrl+q",
   Char = "char",
   Enter = "return",
+  CtrlPlusS = "ctrl+s",
 }
 
 /**
@@ -40,4 +42,5 @@ export const MapEventsToHandler: Map<EventNames, EventRegistryInterface> =
     [EventNames.Tab, new HandleTabKey()],
     [EventNames.Char, new HandleChar()],
     [EventNames.Enter, new HandleEnterKey()],
+    [EventNames.CtrlPlusS, new HandleSaveFile()],
   ]);
